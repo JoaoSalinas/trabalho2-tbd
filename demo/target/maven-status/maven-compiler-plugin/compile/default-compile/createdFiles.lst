@@ -1,0 +1,7 @@
+com/example/model/Article.class
+com/example/service/SubscriptionService.class
+com/example/model/Feed.class
+com/example/controller/SubscriptionController.class
+com/example/rssreader/subscription/Subscription.class
+com/example/persistence/SubscriptionDAO.class
+com/example/MainApplication.class
