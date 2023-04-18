@@ -1,7 +1,6 @@
 package com.example.persistence;
 
 import com.example.model.Feed;
-import com.example.model.Article;
 import com.google.gson.Gson;
 import redis.clients.jedis.Jedis;
 
@@ -9,12 +8,13 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 public class FeedDAO {
     private static final String FEEDS_KEY = "feeds";
 
-    private final Jedis jedis;
-    private final Gson gson;
+    private Jedis jedis;
+    private Gson gson;
 
     public FeedDAO() {
         this.jedis = new Jedis("localhost");
@@ -26,7 +26,7 @@ public class FeedDAO {
         jedis.hset(FEEDS_KEY, String.valueOf(feed.getId()), feedJson);
     }
 
-    public Feed getFeed(int id) {
+    public Feed getFeed(UUID id) {
         String feedJson = jedis.hget(FEEDS_KEY, String.valueOf(id));
         return gson.fromJson(feedJson, Feed.class);
     }
@@ -46,7 +46,7 @@ public class FeedDAO {
         addFeed(feed);
     }
 
-    public void deleteFeed(int id) {
+    public void deleteFeed(UUID id) {
         jedis.hdel(FEEDS_KEY, String.valueOf(id));
     }
 }

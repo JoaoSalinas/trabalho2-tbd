@@ -1,50 +1,53 @@
 package com.example.controller;
 
-import com.example.persistence.FeedDAO;
+import com.example.model.Article;
 import com.example.model.Feed;
+import com.example.persistence.FeedDAO;
 import com.example.service.FeedService;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import redis.clients.jedis.Jedis;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
-
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import java.util.UUID;
 
 public class FeedController {
-    FeedService feedService = new FeedService(null);
+    
+    FeedService feedService = new FeedService(new FeedDAO());
 
-    @GetMapping("/feeds")
     public List<Feed> getAllFeeds() {
         return feedService.getAllFeeds();
     }
 
-    @GetMapping("/feeds/{id}")
-    public Feed getFeed(@PathVariable int id) {
+    public Feed getFeed(UUID id) {
         return feedService.getFeedById(id);
     }
 
-    @PostMapping("/feeds")
-    public Feed createFeed(@RequestBody Feed feed) {        
+    public Feed createFeed(Feed feed) {        
         return feedService.createFeed(feed);
     }
 
-    @PutMapping("/feeds/{id}")
-    public Feed updateFeed(@PathVariable int id, @RequestBody Feed feed) {
+    public Feed updateFeed(UUID id, Feed feed) {
         return feedService.updateFeed(feed);
     }
 
-    @DeleteMapping("/feeds/{id}")
-    public void deleteFeed(@PathVariable int id) {
+    public void deleteFeed(UUID id) {
         feedService.deleteFeed(id);
     }
+    
+    public List<Article> getAllArticles(int pageNumber, int pageSize) {
+        List<Article> articles = new ArrayList<>();
+
+        feedService.getAllFeeds().forEach(feed -> {
+            articles.addAll(feedService.getArticlesFromFeed(feed));
+        });
+        return feedService.paginateArticles(feedService.orderByPublishedDate(articles), pageNumber, pageSize);
+    }
+
+    public Feed getArticles(UUID id, int pageNumber, int pageSize) {
+        Feed feed = feedService.getFeedById(id);        
+        feed.setArticles(feedService.getArticlesFromFeed(feed, pageNumber, pageSize));
+        return feed;        
+    }
+
+    
 
 }
